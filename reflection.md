@@ -4,13 +4,29 @@
 
 **a. Initial design**
 
-- Briefly describe your initial UML design.
-- What classes did you include, and what responsibilities did you assign to each?
+Our design uses four core classes that work together to manage pet care scheduling:
+
+**Task** represents individual pet care activities. Each task has a description, duration, priority level, frequency, and completion status. Tasks can be marked complete and checked for overdue status.
+
+**Pet** stores information about a specific pet (name and species) and maintains a list of tasks associated with that pet. It provides methods to add, remove, and retrieve tasks.
+
+**Owner** represents the pet owner and serves as the central point of access. It holds multiple pets, tracks available time per day, stores user preferences, and provides a method to retrieve all tasks across all pets at once.
+
+**Scheduler** is the "brain" of the system. It takes an Owner as input and implements the scheduling logic: retrieving tasks, prioritizing them based on constraints, building a daily schedule that fits within available time, and explaining the reasoning behind the schedule.
+
+The architecture follows a clear hierarchy: Owner → Pets → Tasks, with Scheduler acting as an orchestrator that uses this hierarchy to generate intelligent daily plans.
 
 **b. Design changes**
 
-- Did your design change during implementation?
-- If yes, describe at least one change and why you made it.
+Yes, we made several adjustments to the skeleton before implementation:
+
+1. **Added ID fields**: Task and Pet lacked unique identifiers, but the remove methods (`remove_task(task_id)` and `remove_pet(pet_id)`) required them. We added `id: int` fields to both classes so that removal logic could identify which object to remove.
+
+2. **Initialized Owner attributes**: The Owner `__init__` was incomplete—it took parameters but didn't store them. We added `self.name`, `self.available_time`, `self.preferences`, and crucially `self.pets = []` to enable the add/remove/get_all_tasks methods to function.
+
+3. **Clarified return type for build_schedule**: The method signature didn't specify what a "schedule" object is. We changed the return type to `DailySchedule` (with a TODO comment to decide if we need that as a separate class) so the output structure is clear.
+
+These changes resolved logical inconsistencies in the skeleton without changing the overall design—they ensured the class structure could actually support the intended behavior.
 
 ---
 

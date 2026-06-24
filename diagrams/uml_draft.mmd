@@ -1,0 +1,41 @@
+classDiagram
+    class Task {
+        -description: str
+        -duration_minutes: int
+        -priority: str
+        -frequency: str
+        -completed: bool
+        +mark_complete() void
+        +is_overdue(current_time) bool
+    }
+
+    class Pet {
+        -name: str
+        -species: str
+        -tasks: list[Task]
+        +add_task(task: Task) void
+        +remove_task(task_id) void
+        +get_tasks() list[Task]
+    }
+
+    class Owner {
+        -name: str
+        -pets: list[Pet]
+        -available_time: int
+        -preferences: dict
+        +add_pet(pet: Pet) void
+        +remove_pet(pet_id) void
+        +get_all_tasks() list[Task]
+    }
+
+    class Scheduler {
+        -owner: Owner
+        +get_tasks() list[Task]
+        +prioritize_tasks(tasks) list[Task]
+        +build_schedule(available_minutes) DailySchedule
+        +explain_schedule(schedule) str
+    }
+
+    Owner --> Pet : has many
+    Pet --> Task : contains many
+    Scheduler --> Owner : manages
