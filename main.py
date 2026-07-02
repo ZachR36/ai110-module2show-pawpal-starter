@@ -1,7 +1,7 @@
 from pawpal_system import Owner, Pet, Task, Scheduler
 
 # Create an Owner
-owner = Owner(name="Jordan", available_time=120, preferences={"prefer_morning": True})
+owner = Owner(name="Jordan", available_time=60, preferences={"prefer_morning": True})
 
 # Create Pets
 dog = Pet(id=1, name="Biscuit", species="dog")

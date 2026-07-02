@@ -125,10 +125,11 @@ class Scheduler:
         }
 
     def explain_schedule(self, schedule: dict) -> str:
-        """Generate a human-readable explanation of the daily schedule."""
+        """Generate a human-readable explanation of the daily schedule with reasoning."""
         if not schedule.get("scheduled_tasks"):
             return "No tasks scheduled for today."
 
+        # Build the schedule output
         explanation = f"Daily plan for {self.owner.name}:\n"
         total_time = 0
 
@@ -138,10 +139,41 @@ class Scheduler:
                 explanation += f"  - {task.description} ({task.duration_minutes} min) [priority: {task.priority}]\n"
                 total_time += task.duration_minutes
 
-        explanation += f"\nTotal time scheduled: {total_time} min"
+        explanation += f"\nTotal time scheduled: {total_time} min / {self.owner.available_time} min available"
 
+        # Add reasoning section
+        explanation += "\n\n--- REASONING ---\n"
+
+        # Explain scheduled tasks by priority
+        high_priority_scheduled = [t for t in schedule["scheduled_tasks"] if t.priority == "high"]
+        medium_priority_scheduled = [t for t in schedule["scheduled_tasks"] if t.priority == "medium"]
+        low_priority_scheduled = [t for t in schedule["scheduled_tasks"] if t.priority == "low"]
+
+        if high_priority_scheduled:
+            explanation += f"\nHigh priority ({len(high_priority_scheduled)} tasks): These were scheduled first as they are most important: "
+            explanation += ", ".join([t.description for t in high_priority_scheduled])
+
+        if medium_priority_scheduled:
+            explanation += f"\nMedium priority ({len(medium_priority_scheduled)} tasks): Scheduled after high priority if time allowed: "
+            explanation += ", ".join([t.description for t in medium_priority_scheduled])
+
+        if low_priority_scheduled:
+            explanation += f"\nLow priority ({len(low_priority_scheduled)} tasks): Scheduled if time remained: "
+            explanation += ", ".join([t.description for t in low_priority_scheduled])
+
+        # Explain skipped tasks
         if schedule.get("skipped_tasks"):
-            explanation += f"\nSkipped ({len(schedule['skipped_tasks'])} tasks due to time constraints): "
-            explanation += ", ".join([t.description for t in schedule["skipped_tasks"]])
+            explanation += f"\n\nSkipped ({len(schedule['skipped_tasks'])} tasks due to insufficient time): "
+            skipped_by_priority = {}
+            for task in schedule["skipped_tasks"]:
+                if task.priority not in skipped_by_priority:
+                    skipped_by_priority[task.priority] = []
+                skipped_by_priority[task.priority].append(task.description)
+
+            for priority in ["high", "medium", "low"]:
+                if priority in skipped_by_priority:
+                    explanation += f"\n  {priority.capitalize()}: {', '.join(skipped_by_priority[priority])}"
+
+        explanation += f"\n\nTime remaining: {schedule['time_remaining']} min"
 
         return explanation
