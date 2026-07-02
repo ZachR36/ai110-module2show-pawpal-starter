@@ -46,12 +46,23 @@ pip install -r requirements.txt
 
 Paste a sample of your app's CLI or Streamlit output here so a reader can see what a generated plan looks like:
 
+(Note - my program doesn't fit the schedule into specific hours of the day like the example left by the teachers here. Mine tells the user which tasks they have time for today and in which order to do them based on priority, and grouped by pets.)
+
 ```
-# e.g.:
-# Daily plan for Biscuit (Golden Retriever):
-#   08:00 — Morning walk (30 min) [priority: high]
-#   09:00 — Feeding (10 min) [priority: high]
-#   ...
+Daily plan for Jordan:
+
+Biscuit:
+  - Feeding (10 min) [priority: high]
+  - Morning walk (30 min) [priority: high]
+  - Playtime (20 min) [priority: medium]
+
+Whiskers:
+  - Feeding (5 min) [priority: high]
+  - Litter box cleaning (10 min) [priority: medium]
+
+Total time scheduled: 75 min
+
+Time remaining: 45 minutes
 ```
 
 ## 🧪 Testing PawPal+
