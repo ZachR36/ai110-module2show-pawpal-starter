@@ -68,19 +68,63 @@ Time remaining: 45 minutes
 
 ## 🧪 Testing PawPal+
 
+### Running Tests
+
 ```bash
 # Run the full test suite:
-pytest
+python -m pytest tests/test_pawpal.py -v
 
-# Run with coverage:
-pytest --cov
+# Run with minimal output:
+python -m pytest tests/test_pawpal.py
 ```
 
-Sample test output:
+### Test Coverage
+
+The test suite includes **26 comprehensive tests** covering:
+
+| Category | Tests | Coverage |
+|----------|-------|----------|
+| **Basic Operations** | 4 | Task completion, addition, removal, moving to completed list |
+| **Recurrence Logic** | 3 | Daily/weekly tasks create next occurrence; "once" tasks don't |
+| **Sorting Correctness** | 3 | Priority, duration, and pet-based sorting all verified |
+| **Scheduling** | 4 | Task selection, overflow handling, zero time, empty pets |
+| **Conflict Detection** | 3 | Same-time collisions, overlapping times, clean schedules |
+| **Fixed-Time & Windows** | 3 | Tasks outside windows rejected, multiple windows, priority breaks ties |
+| **Filtering & Grouping** | 2 | Filter by pet, filter by completion status |
+| **Owner Management** | 2 | Add/remove pets, get all tasks |
+| **Time Helpers** | 2 | Time string ↔ minutes conversion |
+
+**Key features tested:**
+- ✅ Sorting correctness (tasks returned in chronological priority order)
+- ✅ Recurrence logic (completing daily task creates next day's instance with updated due date)
+- ✅ Conflict detection (scheduler flags duplicate/overlapping times)
+- ✅ Edge cases (zero available time, empty pets, multiple availability windows, collision resolution)
+
+### Sample Test Output
 
 ```
-# Paste your pytest output here
-```
+=============================================================================== test session starts ===============================================================================
+platform darwin -- Python 3.14.2, pytest-9.0.3, pluggy-1.6.0
+rootdir: /Users/zacharyrosenberg/edu/Codepath/AI110/Week4/ai110-module2show-pawpal-starter
+plugins: anyio-4.13.0
+collected 26 items                                                                                                                                                                
+
+tests/test_pawpal.py ..........................                                                                                                                             [100%]
+
+=============================================================================== 26 passed in 0.05s ================================================================================```
+
+### Confidence Level
+
+**★★★★★ (5/5 stars)**
+
+The system demonstrates high reliability across:
+- **Core scheduling logic** — Greedy task selection respects sort preferences, time constraints, and availability windows
+- **Recurring task handling** — Daily/weekly tasks correctly spawn next occurrences with proper due date calculation
+- **Conflict prevention** — Fixed-time tasks are validated during placement; floating tasks only fill available slots
+- **Edge case robustness** — Zero time, empty pets, overlapping windows all handled gracefully
+- **Test coverage** — 26 tests covering happy paths and edge cases with 100% pass rate
+
+All 26 tests pass consistently. The system is production-ready for basic pet scheduling workflows.
 
 ## 📐 Smarter Scheduling
 
