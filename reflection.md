@@ -34,13 +34,32 @@ These changes resolved logical inconsistencies in the skeleton without changing 
 
 **a. Constraints and priorities**
 
-- What constraints does your scheduler consider (for example: time, priority, preferences)?
-- How did you decide which constraints mattered most?
+Our scheduler considers three major constraints:
+
+1. **Time constraints**: Available time per day (configurable), and optional availability windows (e.g., 8am-12pm, 2-6pm). Tasks must fit within these windows or be skipped.
+
+2. **Priority constraints**: Tasks have priority levels (high, medium, low) that determine selection order. High-priority tasks are scheduled first; if a task doesn't fit in available time, it's skipped in favor of lower-duration or higher-priority alternatives.
+
+3. **Recurring task constraints**: Daily and weekly recurring tasks are cloned with updated due dates using Python's `timedelta`. Once completed, they automatically spawn the next occurrence.
+
+4. **Owner preferences**: The owner can choose sort order (by priority, duration, or pet), which determines how tasks compete for limited time slots.
+
+We decided priority and time were most critical because a schedule that fits more tasks but ignores priority would be useless (feeding a pet might be skipped for grooming). Owner-controlled sort preferences came second because they give flexibility but don't override the fundamental time constraint.
 
 **b. Tradeoffs**
 
-- Describe one tradeoff your scheduler makes.
-- Why is that tradeoff reasonable for this scenario?
+**Tradeoff: Greedy task placement vs. optimal packing**
+
+Our scheduler uses a greedy algorithm: it sorts tasks by owner preference (priority/duration/pet), then slots them into available time in order. Once a task is placed, we move to the next. This means a 40-minute task placed first might "waste" a slot that could have held two 15-minute tasks, if the order were reversed.
+
+**Why this is reasonable**: 
+- **Predictability**: Users expect high-priority tasks to run first, not to be demoted because a different order packs better. Greedy respects the sort order the user selected.
+- **Simplicity**: Optimal packing (bin-packing algorithms) is O(n²) or worse and much harder to explain. For small task lists (5-10 tasks per pet), greedy is fast enough.
+- **Transparency**: It's easy to understand why each task was included or skipped. With complex packing, a user might wonder why their high-priority task didn't fit when "so much" time remained.
+
+**Alternative we rejected**: We could use a bin-packing heuristic (try to minimize gaps), but that would violate sort priority—the user picked "sort by priority" for a reason. Breaking that contract would make the scheduler unpredictable.
+
+**Edge case this affects**: If a user has 90 minutes and selects tasks [30min, 40min, 20min] (all high priority), greedy schedules [30, 40] and skips the 20min task. A packing algorithm might skip [30, 40] and schedule [40, 20] instead, but that would ignore priority order. Our choice respects the user's intent.
 
 ---
 
