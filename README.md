@@ -42,6 +42,32 @@ pip install -r requirements.txt
 6. Connect your logic to the Streamlit UI in `app.py`.
 7. Refine UML so it matches what you actually built.
 
+## ✨ Features
+
+PawPal+ supports a comprehensive set of features for managing pet care:
+
+### Core Features
+- **Multi-pet management** — Add and manage multiple pets (dogs, cats, birds, rabbits, etc.)
+- **Flexible task creation** — Create tasks with duration, priority, and recurrence settings
+- **Three sorting strategies** — Schedule by priority, duration, or pet-focused approach
+- **Recurring tasks** — Daily/weekly tasks automatically spawn next occurrences when completed
+- **Fixed-time tasks** — Pin important tasks to specific times (e.g., vet appointment at 2:00 PM)
+- **Multiple availability windows** — Define non-contiguous work schedules (e.g., 8-12am, 2-6pm)
+
+### Scheduling Intelligence
+- **Greedy task selection** — Fit maximum high-priority tasks within available time
+- **Conflict detection** — Identifies overlapping task times and validates constraints
+- **Availability validation** — Ensures tasks don't span outside your available windows
+- **Smart explanations** — Shows reasoning behind scheduling decisions
+- **Task filtering** — View schedules grouped by pet or by completion status
+
+### User Interface
+- **Streamlit web app** — Interactive pet and task management
+- **Task tables** — Clean, organized display of active and completed tasks
+- **Schedule metrics** — Shows tasks scheduled, skipped, and time remaining
+- **One-click actions** — Mark tasks complete, remove tasks, generate schedules
+- **Conflict warnings** — Real-time alerts for scheduling issues
+
 ## 🖥️ Sample Output
 
 Paste a sample of your app's CLI or Streamlit output here so a reader can see what a generated plan looks like:
@@ -111,7 +137,8 @@ collected 26 items
 
 tests/test_pawpal.py ..........................                                                                                                                             [100%]
 
-=============================================================================== 26 passed in 0.05s ================================================================================```
+=============================================================================== 26 passed in 0.05s ================================================================================
+```
 
 ### Confidence Level
 
@@ -236,12 +263,172 @@ Non-recurring tasks (`recurrence_type="once"`) are simply archived when complete
 
 ## 📸 Demo Walkthrough
 
-Describe your app in numbered steps so a reader can follow along without watching a video:
+### Using the Streamlit App
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+**Step 1: Configure Your Profile**
+- Click "Configure Owner & Preferences" expander
+- Set your name, available time (e.g., 120 minutes), and when you typically start pet care (e.g., 8:00 AM)
+- Choose a sort preference: priority (default), duration, or pet
+- Optionally define custom availability windows (e.g., 8-12am, 2-6pm with lunch break)
 
-**Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->
+**Step 2: Add Your Pets**
+- Click "Add Pet" to create a new pet
+- Enter pet name (e.g., "Biscuit") and species
+- Your pets appear in the "🐾 Pets" section with task counts
+
+**Step 3: Create Tasks**
+- Click "Add New Task" expander in the right column
+- Select which pet needs the task
+- Enter task description (e.g., "Morning walk"), duration (30 min), priority (high/medium/low)
+- Choose recurrence: once, daily, or weekly
+- Optionally pin a time (e.g., "09:00" for fixed-time tasks)
+- Tasks are displayed in a table for each pet
+
+**Step 4: Generate a Schedule**
+- Choose how to view the schedule: by pet (default) or by completion status
+- Choose schedule format: simple list or with specific times
+- Click "🚀 Generate Schedule"
+- View your daily plan with:
+  - Tasks organized by your preference (priority, duration, or pet)
+  - Time remaining after scheduling
+  - Explanation of scheduling decisions
+  - Warnings for conflicts or tasks outside availability windows
+
+**Step 5: Manage Your Day**
+- Mark tasks complete (✓ Done) — recurring tasks auto-generate for tomorrow
+- Remove tasks you no longer need (✕ Remove)
+- View completed tasks history per pet
+- Regenerate schedule if tasks change
+
+### Example Workflow
+
+```
+1. Add owner: "Sarah" with 120 minutes available, starting at 8:00 AM
+2. Sort preference: "priority" (high → medium → low)
+3. Add pets:
+   - Biscuit (dog)
+   - Whiskers (cat)
+4. Add tasks:
+   - Biscuit: Morning walk (30 min, high priority, daily)
+   - Biscuit: Feeding (10 min, high priority, daily)
+   - Biscuit: Playtime (20 min, medium priority, daily)
+   - Whiskers: Litter box (10 min, medium priority, daily)
+   - Whiskers: Feeding (5 min, high priority, daily)
+5. Generate schedule with sort "priority":
+   Result: All high-priority tasks fit (walk + feeding for both pets = 45 min)
+           Remaining: 75 minutes
+           Biscuit's playtime and cat litter box are scheduled (med priority)
+           Remaining: 45 minutes
+6. Mark Biscuit's walk complete → automatically creates walk for tomorrow
+7. Regenerate schedule to see updated task list
+```
+
+### Key Scheduler Behaviors Demonstrated
+
+**Sorting & Priority:**
+- High-priority tasks (walk, feeding) scheduled first
+- Medium-priority tasks (playtime) fill remaining time
+- Within each priority level, tasks sorted by owner preference (duration, pet, etc.)
+
+**Conflict Detection:**
+- If you add a task at "09:00" and another at "09:00", the lower-priority one is rejected
+- Warnings show which tasks conflict and why
+
+**Time Windows:**
+- If available 8am-12pm and 2pm-6pm, floating tasks fill both windows
+- Fixed-time tasks validated to ensure they fit within windows
+- Tasks spanning across window boundaries are rejected
+
+**Recurring Tasks:**
+- Mark a daily task complete → next day's instance created automatically
+- Due date incremented by 1 day for daily; 1 week for weekly
+
+### Sample CLI Output (main.py)
+
+Run `python main.py` to see the scheduler in action with real output:
+
+```
+============================================================
+TEST 1: Sort by PRIORITY, Filter by PET
+============================================================
+Daily plan for Jordan:
+
+
+Biscuit:
+  - Morning walk (30 min) [priority: high]
+  - Playtime (20 min) [priority: medium]
+  - Treat (5 min) [priority: low]
+
+Whiskers:
+  - Feeding (5 min) [priority: high]
+  - Litter box cleaning (10 min) [priority: medium]
+  - Grooming (15 min) [priority: low]
+
+Total time scheduled: 85 min / 120 min available
+
+--- REASONING ---
+High priority (2 tasks): These were scheduled first as they are most important: Feeding, Morning walk
+Medium priority (2 tasks): Scheduled after high priority if time allowed: Litter box cleaning, Playtime
+Low priority (2 tasks): Scheduled if time remained: Treat, Grooming
+
+Time remaining: 35 min
+
+============================================================
+TEST 2: Sort by DURATION, Filter by PET
+============================================================
+Daily plan for Jordan:
+
+
+Biscuit:
+  - Treat (5 min) [priority: low]
+  - Playtime (20 min) [priority: medium]
+  - Morning walk (30 min) [priority: high]
+
+Whiskers:
+  - Feeding (5 min) [priority: high]
+  - Litter box cleaning (10 min) [priority: medium]
+  - Grooming (15 min) [priority: low]
+
+Total time scheduled: 85 min / 120 min available
+
+--- REASONING ---
+Tasks scheduled shortest-to-longest to fit more into the available time:
+  - Treat (5 min)
+  - Feeding (5 min)
+  - Litter box cleaning (10 min)
+  - Grooming (15 min)
+  - Playtime (20 min)
+  - Morning walk (30 min)
+
+Time remaining: 35 min
+```
+
+============================================================
+TEST 11: CONFLICT DETECTION - SAME PET OVERLAP
+============================================================
+Daily plan for Taylor:
+
+(Fixed-time tasks):
+  08:20 - 08:35: Breakfast (15 min) [priority: high]
+
+(Floating tasks):
+  08:00 - 08:30: Morning walk (30 min) [priority: high]
+  08:45 - 09:05: Play session (20 min) [priority: medium]
+
+⚠️  SCHEDULING CONFLICTS DETECTED:
+  Conflict: 'Breakfast' (08:20-08:35) for Charlie overlaps with 'Morning walk' (08:00-08:30) for Charlie
+
+(Other warnings):
+  Warning: 'Morning walk' scheduled for 08:00 conflicts with another fixed task. Skipping.
+
+--- REASONING ---
+High priority (2 tasks): These were scheduled first as they are most important: Breakfast, Morning walk
+Medium priority (1 tasks): Scheduled after high priority if time allowed: Play session
+
+Time remaining: 55 min
+```
+
+**Key observations:**
+- **TEST 1 (Priority sort):** Both high-priority tasks (Morning walk, Feeding) scheduled first, then medium-priority, then low-priority. All 6 tasks fit with 35 minutes remaining.
+- **TEST 2 (Duration sort):** Same tasks scheduled, but reordered shortest-to-longest. Notice how the order changes but all tasks still fit—demonstrating that duration sort can help fit more tasks when time is tight.
+- **TEST 11 (Conflict detection):** When two tasks overlap (Breakfast at 08:20-08:35 and Morning walk at 08:00-08:30), the scheduler detects the collision and rejects the lower-priority fixed task. The warning system alerts the user to scheduling conflicts, allowing them to adjust times or priorities.

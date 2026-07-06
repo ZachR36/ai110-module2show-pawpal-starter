@@ -1,0 +1,87 @@
+classDiagram
+    class TimeWindow {
+        -start_time: str
+        -end_time: str
+        -day_of_week: str
+        +contains_time(hour, minute) bool
+    }
+
+    class Task {
+        -id: int
+        -description: str
+        -duration_minutes: int
+        -priority: str
+        -frequency: str
+        -completed: bool
+        -scheduled_time: str | None
+        -completed_on: datetime | None
+        -recurrence_type: str
+        -due_date: datetime | None
+        +mark_complete() void
+        +is_overdue(current_time) bool
+        +set_scheduled_time(time) void
+        +clear_scheduled_time() void
+        +set_due_date(due_date) void
+        +create_next_occurrence() Task
+    }
+
+    class Pet {
+        -id: int
+        -name: str
+        -species: str
+        -tasks: list[Task]
+        -completed_tasks: list[Task]
+        +add_task(task) void
+        +remove_task(task_id) void
+        +complete_task(task_id) bool
+        +get_tasks() list[Task]
+    }
+
+    class Owner {
+        -name: str
+        -available_time: int
+        -start_hour: int
+        -sort_preference: str
+        -preferences: dict
+        -pets: list[Pet]
+        -availability_windows: list[TimeWindow]
+        +add_pet(pet) void
+        +remove_pet(pet_id) void
+        +get_all_tasks() list[Task]
+        +set_availability_windows(windows) void
+        +_create_default_window() list[TimeWindow]
+    }
+
+    class Scheduler {
+        -owner: Owner
+        +get_tasks() list[Task]
+        +sort_by_priority(tasks) list[Task]
+        +sort_by_duration(tasks) list[Task]
+        +sort_by_pet(tasks) list[Task]
+        +get_sorted_tasks(tasks) list[Task]
+        +partition_tasks(tasks) dict
+        +select_tasks_for_day(available_minutes) dict
+        +build_schedule(available_minutes, filter_by) dict
+        +schedule_with_times(available_minutes) dict
+        +filter_schedule(tasks, filter_by) dict
+        +detect_conflicts(timed_tasks) list[str]
+        +find_available_slots(occupied_times) list[tuple]
+        +_place_floating_tasks(floating_tasks, occupied_times) list[dict]
+        +_time_in_window(hour, minute) bool
+        +_can_fit_in_window(start_hour, start_minute, duration) bool
+        +_time_to_minutes(time_str) int
+        +_minutes_to_time(total_minutes) str
+        +explain_schedule(schedule) str
+        +_explain_reasoning(scheduled_tasks) str
+        +_explain_priority_sort(scheduled_tasks) str
+        +_explain_duration_sort(scheduled_tasks) str
+        +_explain_pet_sort(scheduled_tasks) str
+    }
+
+    Owner --> Pet : has many
+    Pet --> Task : contains many
+    Pet --> Task : completed_tasks
+    Task --> Task : creates next occurrence
+    Owner --> TimeWindow : availability_windows
+    Scheduler --> Owner : manages scheduling
+    Scheduler --> TimeWindow : validates against
